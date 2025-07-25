@@ -2,6 +2,8 @@
 
 A Swift library for converting Markdown documents to DOCX format using Apple's Swift Markdown parser.
 
+This library is majorly a WIP / initial iteration, and could use a lot of improvements and iteration, which I don't currently plan on doing. Consider this more as a starting point for something greater!
+
 ## Features
 
 - ✅ **Complete Markdown Support**: Headings, paragraphs, lists, code blocks, tables, blockquotes, and more
@@ -82,7 +84,7 @@ This is currently a usability bug – happy to accept PRs to fix any bugs!
 
 ## Example
 
-```swift
+````swift
 let markdown = """
 # Sample Document
 
@@ -111,7 +113,7 @@ let code = "This is a code block"
 
 let converter = MarkdownToDocxConverter()
 let docxData = try converter.convert(markdown: markdown)
-```
+````
 
 ## Requirements
 
