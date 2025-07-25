@@ -259,14 +259,12 @@ final class MarkdownToDocxTests: XCTestCase {
         
         let documentXml = try extractDocumentXml(from: docxData)
         
-        // Should contain hyperlink elements with relationship IDs
-        XCTAssertTrue(documentXml.contains("<w:hyperlink"), "Should contain hyperlink element")
-        XCTAssertTrue(documentXml.contains("r:id=\"rId2\""), "Should contain first relationship ID")
-        XCTAssertTrue(documentXml.contains("r:id=\"rId3\""), "Should contain second relationship ID")
+        // Links should appear as plain text (no hyperlink elements)
+        XCTAssertFalse(documentXml.contains("<w:hyperlink"), "Should not contain hyperlink elements")
         XCTAssertTrue(documentXml.contains("link to example.com"), "Should contain first link text")
         XCTAssertTrue(documentXml.contains("GitHub link"), "Should contain second link text")
         
-        // Also check that the relationship file contains the correct URLs
+        // Check that the relationship file only contains styles (no hyperlinks)
         let tempDir = FileManager.default.temporaryDirectory
         let tempURL = tempDir.appendingPathComponent("temp.docx")
         try docxData.write(to: tempURL)
@@ -278,8 +276,8 @@ final class MarkdownToDocxTests: XCTestCase {
             let relsData = try Data(contentsOf: extractURL)
             let relsString = String(data: relsData, encoding: .utf8) ?? ""
             
-            XCTAssertTrue(relsString.contains("Target=\"https://example.com\""), "Should contain first link target in relationships")
-            XCTAssertTrue(relsString.contains("Target=\"https://github.com\""), "Should contain second link target in relationships")
+            XCTAssertTrue(relsString.contains("Target=\"styles.xml\""), "Should contain styles relationship")
+            XCTAssertFalse(relsString.contains("Target=\"https://"), "Should not contain hyperlink relationships")
             
             // Clean up
             try FileManager.default.removeItem(at: tempURL)

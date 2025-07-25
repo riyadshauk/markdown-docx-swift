@@ -517,27 +517,13 @@ public class MarkdownToDocxConverter {
         
         let props = runProps.isEmpty ? "" : "<w:rPr>\(runProps)</w:rPr>"
         
-        // Handle links - temporarily generate as plain text to avoid corruption
+        // Handle links - show as plain text to avoid corruption
         if let link = textRun.link, !link.isEmpty {
-            // For now, just generate the text with link styling but no actual hyperlink
-            var linkRunProps = "<w:color w:val=\"0000FF\"/><w:u w:val=\"single\"/>"
-            if textRun.isBold {
-                linkRunProps += "<w:b/>"
-            }
-            if textRun.isItalic {
-                linkRunProps += "<w:i/>"
-            }
-            if textRun.isStrikethrough {
-                linkRunProps += "<w:strike/>"
-            }
-            if textRun.isCode {
-                linkRunProps += "<w:rStyle w:val=\"Code\"/>"
-            }
-            
+            // Just show the link text in normal formatting, ignore the URL
             return """
             <w:r>
-                <w:rPr>\(linkRunProps)</w:rPr>
-                <w:t>\(escapeXml(textRun.text)) (\(escapeXml(link)))</w:t>
+                \(props)
+                <w:t>\(escapeXml(textRun.text))</w:t>
             </w:r>
             """
         }

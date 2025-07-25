@@ -6,7 +6,7 @@ A Swift library for converting Markdown documents to DOCX format using Apple's S
 
 - ✅ **Complete Markdown Support**: Headings, paragraphs, lists, code blocks, tables, blockquotes, and more
 - ✅ **Proper DOCX Styling**: Generates properly formatted DOCX files with correct styling
-- ✅ **Link Support**: Converts Markdown links to styled text (blue and underlined)
+- ✅ **Link Support**: Converts Markdown links to plain text (no styling, URLs ignored)
 - ✅ **File Conversion**: Convert both strings and files
 - ✅ **Comprehensive Testing**: Full test coverage with 14+ test cases
 - ✅ **iOS Compatible**: Works seamlessly with iOS apps
@@ -54,6 +54,17 @@ let docxData = try converter.convert(markdown: markdown)
 try docxData.write(to: URL(fileURLWithPath: "output.docx"))
 ```
 
+### Link Behavior
+
+Links in Markdown are converted to plain text in the DOCX file. The URL is ignored and only the link text is preserved:
+
+```swift
+// Input: [Apple](https://www.apple.com)
+// Output: "Apple" (plain text, no styling)
+```
+
+This is currently a usability bug – happy to accept PRs to fix any bugs!
+
 ## Supported Markdown Features
 
 | Feature | Support |
@@ -66,7 +77,7 @@ try docxData.write(to: URL(fileURLWithPath: "output.docx"))
 | Tables | ✅ |
 | Blockquotes | ✅ |
 | Horizontal Rules | ✅ |
-| Links | ✅ (styled as blue underlined text) |
+| Links | ✅ (converted to plain text, URLs ignored) |
 | Images | ✅ (placeholder support) |
 
 ## Example
@@ -95,7 +106,7 @@ let code = "This is a code block"
 |----------|----------|
 | Cell 1   | Cell 2   |
 
-[Link to Apple](https://www.apple.com)
+[Link to Apple](https://www.apple.com) <!-- Shows as "Link to Apple" in plain text -->
 """
 
 let converter = MarkdownToDocxConverter()
