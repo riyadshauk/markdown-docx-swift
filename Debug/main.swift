@@ -4,8 +4,11 @@ import Foundation
 import MarkdownToDocx
 import ZIPFoundation
 
-print("🚀 Markdown to DOCX Converter - User-Friendly Styling Configuration Test")
+print("🚀 Markdown to DOCX Converter - Full Feature Parity Test")
 print("📏 Using intuitive units: inches, points, centimeters, millimeters")
+print("📄 Supporting page sizes: Letter, Legal, A4, A3, A5, Executive, Tabloid")
+print("🔤 Supporting system fonts with fallbacks")
+print("🔗 Supporting custom link colors")
 print(String(repeating: "=", count: 60))
 
 // Test markdown content
@@ -259,6 +262,85 @@ print("\n📋 Files generated:")
 print("   • default_styling.docx - Default configuration")
 print("   • professional_styling.docx - Professional business styling")
 print("   • creative_styling.docx - Colorful creative styling")
+print("   • cover_letter_optimized.docx - Full feature parity with PDF config")
+
+// Test 4: Full Feature Parity Configuration (matching PDF config)
+print("\n4️⃣ Testing full feature parity configuration...")
+let coverLetterOptimized = UserFriendlyDocxStylingConfig(
+    pageSize: .letter, // 612.0 x 792.0 points
+    pageMargins: UserFriendlyPageMargins(
+        top: .points(40.0),      // 40pt = 0.556 inches
+        right: .points(40.0),    // 40pt = 0.556 inches
+        bottom: .points(40.0),   // 40pt = 0.556 inches
+        left: .points(40.0)      // 40pt = 0.556 inches
+    ),
+    defaultFont: UserFriendlyFontConfig(
+        systemFont: .system,
+        size: .points(12.0),
+        color: "333333"
+    ),
+    lineSpacing: LineSpacing(
+        type: .multiple,
+        value: 360 // 1.5 * 240 (12pt * 20)
+    ),
+    headings: HeadingStyles(
+        h1: HeadingStyle(
+            level: 1,
+            font: FontConfig(
+                name: "Calibri",
+                size: 36, // 18pt * 2
+                color: "000000"
+            ),
+            spacing: Spacing(before: 280, after: 280) // 14pt * 20
+        ),
+        h2: HeadingStyle(
+            level: 2,
+            font: FontConfig(
+                name: "Calibri", 
+                size: 28, // 14pt * 2
+                color: "000000"
+            ),
+            spacing: Spacing(before: 280, after: 280)
+        ),
+        h3: HeadingStyle(
+            level: 3,
+            font: FontConfig(
+                name: "Calibri",
+                size: 24, // 12pt * 2
+                color: "000000"
+            ),
+            spacing: Spacing(before: 280, after: 280)
+        )
+    ),
+    paragraphs: ParagraphStyles(
+        spacing: Spacing(before: 200, after: 200) // 10pt * 20
+    ),
+    codeBlocks: CodeBlockStyles(
+        font: FontConfig(
+            name: "Consolas", // Monospace font
+            size: 22, // 11pt * 2
+            color: "000000"
+        ),
+        background: "F5F5F5"
+    ),
+    lists: ListStyles(
+        indentation: 100 // 5pt * 20
+    ),
+    linkColor: "0066cc"
+)
+
+let coverLetterConverter = MarkdownToDocxConverter(userFriendlyConfig: coverLetterOptimized)
+
+do {
+    let coverLetterData = try coverLetterConverter.convert(markdown: testMarkdown)
+    let coverLetterURL = FileManager.default.temporaryDirectory.appendingPathComponent("cover_letter_optimized.docx")
+    try coverLetterData.write(to: coverLetterURL)
+    print("✅ Cover letter optimized styling saved to: \(coverLetterURL.path)")
+    print("📊 File size: \(coverLetterData.count) bytes")
+    print("🎯 This configuration matches the PDF coverLetterOptimized config exactly!")
+} catch {
+    print("❌ Error with cover letter optimized styling: \(error)")
+}
 
 // Test the DOCX generation
 let markdown = """

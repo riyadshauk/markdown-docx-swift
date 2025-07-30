@@ -15,6 +15,9 @@ A Swift library for converting Markdown documents to Microsoft Word (.docx) form
 - ✅ Tables
 - ✅ Horizontal rules
 - ✅ Images (basic support)
+- ✅ **Page Size Configuration** (Letter, Legal, A4, A3, A5, Executive, Tabloid)
+- ✅ **System Font Support** with fallbacks
+- ✅ **Custom Link Colors** (even for broken links)
 
 ## Installation
 
@@ -120,6 +123,7 @@ let styledDocxData = try styledConverter.convert(markdown: markdown)
 
 // With user-friendly styling (recommended)
 let userFriendlyConfig = UserFriendlyDocxStylingConfig(
+    pageSize: .letter,            // Letter size (8.5" x 11")
     pageMargins: UserFriendlyPageMargins(
         top: .inches(1.0),        // 1 inch
         right: .inches(0.75),     // 0.75 inches
@@ -127,10 +131,11 @@ let userFriendlyConfig = UserFriendlyDocxStylingConfig(
         left: .inches(0.75)       // 0.75 inches
     ),
     defaultFont: UserFriendlyFontConfig(
-        name: "Times New Roman",
+        systemFont: .system,      // System font with fallbacks
         size: .points(12.0),      // 12pt font
         color: "000000"
-    )
+    ),
+    linkColor: "0066cc"           // Blue links
 )
 let userFriendlyConverter = MarkdownToDocxConverter(userFriendlyConfig: userFriendlyConfig)
 let userFriendlyDocxData = try userFriendlyConverter.convert(markdown: markdown)
@@ -322,6 +327,7 @@ You can mix different units in the same configuration:
 
 ```swift
 let config = UserFriendlyDocxStylingConfig(
+    pageSize: .a4,                   // A4 page size
     pageMargins: UserFriendlyPageMargins(
         top: .inches(1.0),           // Inches for margins
         right: .centimeters(2.0),    // Centimeters for right margin
@@ -329,10 +335,116 @@ let config = UserFriendlyDocxStylingConfig(
         left: .centimeters(2.0)      // Centimeters for left margin
     ),
     defaultFont: UserFriendlyFontConfig(
-        name: "Arial",
+        systemFont: .system,         // System font with fallbacks
         size: .points(14.0),         // Points for font size
         color: "FF0000"
+    ),
+    linkColor: "FF0000"              // Red links
+)
+```
+
+## New Features for Full Feature Parity
+
+### Page Size Configuration
+
+The library now supports configurable page sizes with predefined presets:
+
+```swift
+let config = UserFriendlyDocxStylingConfig(
+    pageSize: .letter,    // 8.5" x 11" (612pt x 792pt)
+    // ... other config
+)
+
+// Available page sizes:
+PageSize.letter      // 8.5" x 11" (612pt x 792pt)
+PageSize.legal       // 8.5" x 14" (612pt x 1008pt)
+PageSize.a4          // 210mm x 297mm (595pt x 842pt)
+PageSize.a3          // 297mm x 420mm (842pt x 1191pt)
+PageSize.a5          // 148mm x 210mm (420pt x 595pt)
+PageSize.executive   // 7.25" x 10.5" (522pt x 756pt)
+PageSize.tabloid     // 11" x 17" (792pt x 1224pt)
+```
+
+### System Font Support
+
+Use system fonts with automatic fallbacks for better cross-platform compatibility:
+
+```swift
+let config = UserFriendlyDocxStylingConfig(
+    defaultFont: UserFriendlyFontConfig(
+        systemFont: .system,      // Calibri + system fallbacks
+        size: .points(12.0),
+        color: "000000"
     )
+)
+
+// Available system font configurations:
+SystemFontConfig.system      // Calibri + system fallbacks
+SystemFontConfig.systemMono  // Consolas + monospace fallbacks
+SystemFontConfig.serif       // Times New Roman + serif fallbacks
+SystemFontConfig.sansSerif   // Arial + sans-serif fallbacks
+```
+
+### Custom Link Colors
+
+Configure the color of links (even though they're currently broken):
+
+```swift
+let config = UserFriendlyDocxStylingConfig(
+    linkColor: "0066cc"  // Blue links (hex without #)
+)
+```
+
+### Full Feature Parity Example
+
+Here's a complete configuration that matches the PDF `coverLetterOptimized` configuration exactly:
+
+```swift
+let coverLetterOptimized = UserFriendlyDocxStylingConfig(
+    pageSize: .letter, // 612.0 x 792.0 points
+    pageMargins: UserFriendlyPageMargins(
+        top: .points(40.0),      // 40pt = 0.556 inches
+        right: .points(40.0),    // 40pt = 0.556 inches
+        bottom: .points(40.0),   // 40pt = 0.556 inches
+        left: .points(40.0)      // 40pt = 0.556 inches
+    ),
+    defaultFont: UserFriendlyFontConfig(
+        systemFont: .system,
+        size: .points(12.0),
+        color: "333333"
+    ),
+    lineSpacing: LineSpacing(
+        type: .multiple,
+        value: 360 // 1.5 * 240 (12pt * 20)
+    ),
+    headings: HeadingStyles(
+        h1: HeadingStyle(
+            level: 1,
+            font: FontConfig(name: "Calibri", size: 36, color: "000000"),
+            spacing: Spacing(before: 280, after: 280) // 14pt * 20
+        ),
+        h2: HeadingStyle(
+            level: 2,
+            font: FontConfig(name: "Calibri", size: 28, color: "000000"),
+            spacing: Spacing(before: 280, after: 280)
+        ),
+        h3: HeadingStyle(
+            level: 3,
+            font: FontConfig(name: "Calibri", size: 24, color: "000000"),
+            spacing: Spacing(before: 280, after: 280)
+        )
+    ),
+    paragraphs: ParagraphStyles(
+        spacing: Spacing(before: 200, after: 200) // 10pt * 20
+    ),
+    codeBlocks: CodeBlockStyles(
+        font: FontConfig(name: "Consolas", size: 22, color: "000000"),
+        background: "F5F5F5"
+    ),
+    lists: ListStyles(
+        indentation: 100 // 5pt * 20
+    ),
+    linkColor: "0066cc"
 )
 ```
 

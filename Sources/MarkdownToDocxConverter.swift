@@ -344,17 +344,20 @@ public class MarkdownToDocxConverter {
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+            <w:zoom w:percent="100"/>
             <w:defaultTabStop w:val="720"/>
             <w:characterSpacingControl w:val="doNotCompress"/>
             <w:compat/>
             <w:rsids>
-                <w:rsidRoot w:val="00C847FE"/>
+                <w:rsidRoot w:val="00000000"/>
             </w:rsids>
             <w:themeFontLang w:val="en-US" w:eastAsia="en-US"/>
             <w:clrSchemeMapping w:bg1="light1" w:t1="dark1" w:bg2="light2" w:t2="dark2" w:accent1="accent1" w:accent2="accent2" w:accent3="accent3" w:accent4="accent4" w:accent5="accent5" w:accent6="accent6" w:hyperlink="hyperlink" w:followedHyperlink="followedHyperlink"/>
         </w:settings>
         """
     }
+    
+
     
     private func generateDocumentSettingsRelsXml() -> String {
         return """
@@ -555,6 +558,11 @@ public class MarkdownToDocxConverter {
         }
         if textRun.isCode {
             runProps += "<w:rStyle w:val=\"Code\"/>"
+        }
+        
+        // Add link color if this is a link
+        if let link = textRun.link, !link.isEmpty {
+            runProps += "<w:color w:val=\"\(stylingConfig.linkColor)\"/>"
         }
         
         let props = runProps.isEmpty ? "" : "<w:rPr>\(runProps)</w:rPr>"

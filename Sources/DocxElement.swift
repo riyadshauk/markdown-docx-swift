@@ -109,21 +109,37 @@ public struct UserFriendlyFontConfig {
     public var name: String
     public var size: Measurement
     public var color: String
+    public var systemFont: SystemFontConfig?
     
     public init(
         name: String = "Calibri",
         size: Measurement = .points(12.0),
-        color: String = "000000"
+        color: String = "000000",
+        systemFont: SystemFontConfig? = nil
     ) {
         self.name = name
         self.size = size
         self.color = color
+        self.systemFont = systemFont
+    }
+    
+    // Convenience initializer for system fonts
+    public init(
+        systemFont: SystemFontConfig,
+        size: Measurement = .points(12.0),
+        color: String = "000000"
+    ) {
+        self.name = systemFont.primary
+        self.size = size
+        self.color = color
+        self.systemFont = systemFont
     }
     
     // Convert to internal format
     public func toFontConfig() -> FontConfig {
+        let fontName = systemFont?.fullFontName ?? name
         return FontConfig(
-            name: name,
+            name: fontName,
             size: size.twips / 10, // Font size is in half-points, so divide by 10
             color: color
         )
@@ -241,6 +257,7 @@ public struct UserFriendlyBorder {
 // MARK: - User-Friendly Styling Configuration
 
 public struct UserFriendlyDocxStylingConfig {
+    public var pageSize: PageSize
     public var pageMargins: UserFriendlyPageMargins
     public var defaultFont: UserFriendlyFontConfig
     public var lineSpacing: LineSpacing
@@ -250,8 +267,10 @@ public struct UserFriendlyDocxStylingConfig {
     public var blockquotes: BlockquoteStyles
     public var tables: TableStyles
     public var lists: ListStyles
+    public var linkColor: String
     
     public init(
+        pageSize: PageSize = .letter,
         pageMargins: UserFriendlyPageMargins = UserFriendlyPageMargins(),
         defaultFont: UserFriendlyFontConfig = UserFriendlyFontConfig(),
         lineSpacing: LineSpacing = LineSpacing(),
@@ -260,8 +279,10 @@ public struct UserFriendlyDocxStylingConfig {
         codeBlocks: CodeBlockStyles = CodeBlockStyles(),
         blockquotes: BlockquoteStyles = BlockquoteStyles(),
         tables: TableStyles = TableStyles(),
-        lists: ListStyles = ListStyles()
+        lists: ListStyles = ListStyles(),
+        linkColor: String = "0066cc"
     ) {
+        self.pageSize = pageSize
         self.pageMargins = pageMargins
         self.defaultFont = defaultFont
         self.lineSpacing = lineSpacing
@@ -271,11 +292,13 @@ public struct UserFriendlyDocxStylingConfig {
         self.blockquotes = blockquotes
         self.tables = tables
         self.lists = lists
+        self.linkColor = linkColor
     }
     
     // Convert to internal format
     public func toDocxStylingConfig() -> DocxStylingConfig {
         return DocxStylingConfig(
+            pageSize: pageSize,
             pageMargins: pageMargins.toPageMargins(),
             defaultFont: defaultFont.toFontConfig(),
             lineSpacing: lineSpacing,
@@ -284,7 +307,8 @@ public struct UserFriendlyDocxStylingConfig {
             codeBlocks: codeBlocks,
             blockquotes: blockquotes,
             tables: tables,
-            lists: lists
+            lists: lists,
+            linkColor: linkColor
         )
     }
 }
@@ -293,9 +317,11 @@ public struct UserFriendlyDocxStylingConfig {
 
 public struct DocxStylingConfig {
     // Document-level settings
+    public var pageSize: PageSize
     public var pageMargins: PageMargins
     public var defaultFont: FontConfig
     public var lineSpacing: LineSpacing
+    public var linkColor: String
     
     // Element-specific styling
     public var headings: HeadingStyles
@@ -306,6 +332,7 @@ public struct DocxStylingConfig {
     public var lists: ListStyles
     
     public init(
+        pageSize: PageSize = .letter,
         pageMargins: PageMargins = PageMargins(),
         defaultFont: FontConfig = FontConfig(),
         lineSpacing: LineSpacing = LineSpacing(),
@@ -314,11 +341,14 @@ public struct DocxStylingConfig {
         codeBlocks: CodeBlockStyles = CodeBlockStyles(),
         blockquotes: BlockquoteStyles = BlockquoteStyles(),
         tables: TableStyles = TableStyles(),
-        lists: ListStyles = ListStyles()
+        lists: ListStyles = ListStyles(),
+        linkColor: String = "0066cc"
     ) {
+        self.pageSize = pageSize
         self.pageMargins = pageMargins
         self.defaultFont = defaultFont
         self.lineSpacing = lineSpacing
+        self.linkColor = linkColor
         self.headings = headings
         self.paragraphs = paragraphs
         self.codeBlocks = codeBlocks
@@ -671,6 +701,97 @@ public enum TextAlignment {
         case .justify: return "both"
         }
     }
+}
+
+// MARK: - Page Size Configuration
+
+public struct PageSize {
+    public var width: Measurement
+    public var height: Measurement
+    
+    public init(
+        width: Measurement = .points(612.0),  // Standard letter width
+        height: Measurement = .points(792.0)  // Standard letter height
+    ) {
+        self.width = width
+        self.height = height
+    }
+    
+    // Common page sizes
+    public static let letter = PageSize(
+        width: .points(612.0),
+        height: .points(792.0)
+    )
+    
+    public static let legal = PageSize(
+        width: .points(612.0),
+        height: .points(1008.0)
+    )
+    
+    public static let a4 = PageSize(
+        width: .points(595.0),
+        height: .points(842.0)
+    )
+    
+    public static let a3 = PageSize(
+        width: .points(842.0),
+        height: .points(1191.0)
+    )
+    
+    public static let a5 = PageSize(
+        width: .points(420.0),
+        height: .points(595.0)
+    )
+    
+    public static let executive = PageSize(
+        width: .points(522.0),
+        height: .points(756.0)
+    )
+    
+    public static let tabloid = PageSize(
+        width: .points(792.0),
+        height: .points(1224.0)
+    )
+}
+
+// MARK: - System Font Support
+
+public struct SystemFontConfig {
+    public var primary: String
+    public var fallbacks: [String]
+    
+    public init(primary: String, fallbacks: [String] = []) {
+        self.primary = primary
+        self.fallbacks = fallbacks
+    }
+    
+    public var fullFontName: String {
+        if fallbacks.isEmpty {
+            return primary
+        }
+        return "\(primary), \(fallbacks.joined(separator: ", "))"
+    }
+    
+    // Common system font configurations
+    public static let system = SystemFontConfig(
+        primary: "Calibri",
+        fallbacks: ["-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Roboto", "sans-serif"]
+    )
+    
+    public static let systemMono = SystemFontConfig(
+        primary: "Consolas",
+        fallbacks: ["'SF Mono'", "Monaco", "'Cascadia Code'", "'Roboto Mono'", "'Courier New'", "monospace"]
+    )
+    
+    public static let serif = SystemFontConfig(
+        primary: "Times New Roman",
+        fallbacks: ["Georgia", "serif"]
+    )
+    
+    public static let sansSerif = SystemFontConfig(
+        primary: "Arial",
+        fallbacks: ["Helvetica", "sans-serif"]
+    )
 }
 
 // MARK: - Existing DocxElement Types
