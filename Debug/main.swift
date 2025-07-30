@@ -4,10 +4,16 @@ import Foundation
 import MarkdownToDocx
 import ZIPFoundation
 
-print("🚀 Markdown to DOCX Converter - Styling Configuration Test")
+print("🚀 Markdown to DOCX Converter - User-Friendly Styling Configuration Test")
+print("📏 Using intuitive units: inches, points, centimeters, millimeters")
 print(String(repeating: "=", count: 60))
 
 // Test markdown content
+// Note: This example uses the user-friendly API with familiar units:
+// - .inches(1.0) for page margins and indentation
+// - .points(12.0) for font sizes and spacing
+// - .centimeters(2.54) for metric measurements
+// - .millimeters(25.4) for precise metric measurements
 let testMarkdown = """
 # Styling Configuration Test
 
@@ -56,48 +62,89 @@ do {
 
 // Test 2: Professional styling
 print("\n2️⃣ Testing professional styling...")
-let professionalConfig = DocxStylingConfig(
-    defaultFont: FontConfig(name: "Times New Roman", size: 24, color: "000000"),
+let professionalConfig = UserFriendlyDocxStylingConfig(
+    defaultFont: UserFriendlyFontConfig(
+        name: "Times New Roman",
+        size: .points(12.0),      // 12pt font
+        color: "000000"
+    ),
     headings: HeadingStyles(
         h1: HeadingStyle(
             level: 1,
             font: FontConfig(name: "Arial", size: 36, color: "2E5984"),
-            spacing: Spacing(before: 360, after: 120)
+            spacing: UserFriendlySpacing(
+                before: .points(18.0),  // 18pt before
+                after: .points(6.0)     // 6pt after
+            ).toSpacing()
         ),
         h2: HeadingStyle(
             level: 2,
             font: FontConfig(name: "Arial", size: 32, color: "2E5984"),
-            spacing: Spacing(before: 300, after: 120)
+            spacing: UserFriendlySpacing(
+                before: .points(15.0),  // 15pt before
+                after: .points(6.0)     // 6pt after
+            ).toSpacing()
         ),
         h3: HeadingStyle(
             level: 3,
             font: FontConfig(name: "Arial", size: 28, color: "2E5984"),
-            spacing: Spacing(before: 240, after: 120)
+            spacing: UserFriendlySpacing(
+                before: .points(12.0),  // 12pt before
+                after: .points(6.0)     // 6pt after
+            ).toSpacing()
         )
     ),
     codeBlocks: CodeBlockStyles(
         font: FontConfig(name: "Courier New", size: 20, color: "C7254E"),
         background: "F8F9FA",
-        border: Border(
-            top: BorderSide(width: 4, color: "DEE2E6", style: .single),
-            right: BorderSide(width: 4, color: "DEE2E6", style: .single),
-            bottom: BorderSide(width: 4, color: "DEE2E6", style: .single),
-            left: BorderSide(width: 4, color: "DEE2E6", style: .single)
-        ),
-        indentation: Indentation(left: 720, right: 720),
-        spacing: Spacing(before: 120, after: 120)
+        border: UserFriendlyBorder(
+            top: UserFriendlyBorderSide(
+                width: .points(0.25),   // 0.25pt border
+                color: "DEE2E6",
+                style: .single
+            ),
+            right: UserFriendlyBorderSide(
+                width: .points(0.25),
+                color: "DEE2E6",
+                style: .single
+            ),
+            bottom: UserFriendlyBorderSide(
+                width: .points(0.25),
+                color: "DEE2E6",
+                style: .single
+            ),
+            left: UserFriendlyBorderSide(
+                width: .points(0.25),
+                color: "DEE2E6",
+                style: .single
+            )
+        ).toBorder(),
+        indentation: UserFriendlyIndentation(
+            left: .inches(0.5),     // 0.5 inch left margin
+            right: .inches(0.5)     // 0.5 inch right margin
+        ).toIndentation(),
+        spacing: UserFriendlySpacing(
+            before: .points(6.0),   // 6pt before
+            after: .points(6.0)     // 6pt after
+        ).toSpacing()
     ),
     blockquotes: BlockquoteStyles(
         font: FontConfig(name: "Times New Roman", size: 24, color: "6C757D"),
         border: Border(
             left: BorderSide(width: 8, color: "6C757D", style: .single)
         ),
-        indentation: Indentation(left: 720, right: 720),
-        spacing: Spacing(before: 120, after: 120)
+        indentation: UserFriendlyIndentation(
+            left: .inches(0.5),     // 0.5 inch left indent
+            right: .inches(0.5)     // 0.5 inch right indent
+        ).toIndentation(),
+        spacing: UserFriendlySpacing(
+            before: .points(6.0),   // 6pt before
+            after: .points(6.0)     // 6pt after
+        ).toSpacing()
     )
 )
 
-let professionalConverter = MarkdownToDocxConverter(stylingConfig: professionalConfig)
+let professionalConverter = MarkdownToDocxConverter(userFriendlyConfig: professionalConfig)
 
 do {
     let professionalData = try professionalConverter.convert(markdown: testMarkdown)
@@ -111,48 +158,89 @@ do {
 
 // Test 3: Creative styling
 print("\n3️⃣ Testing creative styling...")
-let creativeConfig = DocxStylingConfig(
-    defaultFont: FontConfig(name: "Arial", size: 24, color: "333333"),
+let creativeConfig = UserFriendlyDocxStylingConfig(
+    defaultFont: UserFriendlyFontConfig(
+        name: "Arial",
+        size: .points(12.0),      // 12pt font
+        color: "333333"
+    ),
     headings: HeadingStyles(
         h1: HeadingStyle(
             level: 1,
             font: FontConfig(name: "Arial", size: 40, color: "E74C3C"),
-            spacing: Spacing(before: 480, after: 240)
+            spacing: UserFriendlySpacing(
+                before: .points(24.0),  // 24pt before
+                after: .points(12.0)    // 12pt after
+            ).toSpacing()
         ),
         h2: HeadingStyle(
             level: 2,
             font: FontConfig(name: "Arial", size: 32, color: "3498DB"),
-            spacing: Spacing(before: 360, after: 180)
+            spacing: UserFriendlySpacing(
+                before: .points(18.0),  // 18pt before
+                after: .points(9.0)     // 9pt after
+            ).toSpacing()
         ),
         h3: HeadingStyle(
             level: 3,
             font: FontConfig(name: "Arial", size: 28, color: "27AE60"),
-            spacing: Spacing(before: 240, after: 120)
+            spacing: UserFriendlySpacing(
+                before: .points(12.0),  // 12pt before
+                after: .points(6.0)     // 6pt after
+            ).toSpacing()
         )
     ),
     codeBlocks: CodeBlockStyles(
         font: FontConfig(name: "Courier New", size: 20, color: "8E44AD"),
         background: "FDF2F8",
-        border: Border(
-            top: BorderSide(width: 6, color: "E91E63", style: .dashed),
-            right: BorderSide(width: 6, color: "E91E63", style: .dashed),
-            bottom: BorderSide(width: 6, color: "E91E63", style: .dashed),
-            left: BorderSide(width: 6, color: "E91E63", style: .dashed)
-        ),
-        indentation: Indentation(left: 720, right: 720),
-        spacing: Spacing(before: 120, after: 120)
+        border: UserFriendlyBorder(
+            top: UserFriendlyBorderSide(
+                width: .points(0.5),    // 0.5pt border
+                color: "E91E63",
+                style: .dashed
+            ),
+            right: UserFriendlyBorderSide(
+                width: .points(0.5),
+                color: "E91E63",
+                style: .dashed
+            ),
+            bottom: UserFriendlyBorderSide(
+                width: .points(0.5),
+                color: "E91E63",
+                style: .dashed
+            ),
+            left: UserFriendlyBorderSide(
+                width: .points(0.5),
+                color: "E91E63",
+                style: .dashed
+            )
+        ).toBorder(),
+        indentation: UserFriendlyIndentation(
+            left: .inches(0.5),     // 0.5 inch left margin
+            right: .inches(0.5)     // 0.5 inch right margin
+        ).toIndentation(),
+        spacing: UserFriendlySpacing(
+            before: .points(6.0),   // 6pt before
+            after: .points(6.0)     // 6pt after
+        ).toSpacing()
     ),
     blockquotes: BlockquoteStyles(
         font: FontConfig(name: "Georgia", size: 24, color: "7F8C8D"),
         border: Border(
             left: BorderSide(width: 12, color: "F39C12", style: .double)
         ),
-        indentation: Indentation(left: 720, right: 720),
-        spacing: Spacing(before: 120, after: 120)
+        indentation: UserFriendlyIndentation(
+            left: .inches(0.5),     // 0.5 inch left indent
+            right: .inches(0.5)     // 0.5 inch right indent
+        ).toIndentation(),
+        spacing: UserFriendlySpacing(
+            before: .points(6.0),   // 6pt before
+            after: .points(6.0)     // 6pt after
+        ).toSpacing()
     )
 )
 
-let creativeConverter = MarkdownToDocxConverter(stylingConfig: creativeConfig)
+let creativeConverter = MarkdownToDocxConverter(userFriendlyConfig: creativeConfig)
 
 do {
     let creativeData = try creativeConverter.convert(markdown: testMarkdown)

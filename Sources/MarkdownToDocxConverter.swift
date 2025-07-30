@@ -17,6 +17,11 @@ public class MarkdownToDocxConverter {
         self.stylingConfig = stylingConfig
     }
     
+    // User-friendly initializer
+    public convenience init(userFriendlyConfig: UserFriendlyDocxStylingConfig) {
+        self.init(stylingConfig: userFriendlyConfig.toDocxStylingConfig())
+    }
+    
     public func convert(markdown: String) throws -> Data {
         let document = Document(parsing: markdown)
         let elements = try parseDocument(document)

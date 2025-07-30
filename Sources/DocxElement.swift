@@ -7,6 +7,288 @@
 
 import Foundation
 
+// MARK: - Unit Conversion Utilities
+
+public enum Unit {
+    case inches
+    case points
+    case centimeters
+    case millimeters
+    case twips
+    
+    var twipsPerUnit: Double {
+        switch self {
+        case .inches: return 1440.0
+        case .points: return 20.0
+        case .centimeters: return 566.93  // 1440 / 2.54
+        case .millimeters: return 56.69   // 1440 / 25.4
+        case .twips: return 1.0
+        }
+    }
+}
+
+public struct Measurement {
+    public let value: Double
+    public let unit: Unit
+    
+    public init(_ value: Double, unit: Unit) {
+        self.value = value
+        self.unit = unit
+    }
+    
+    public var twips: Int {
+        return Int(value * unit.twipsPerUnit)
+    }
+    
+    // Convenience initializers
+    public static func inches(_ value: Double) -> Measurement {
+        return Measurement(value, unit: .inches)
+    }
+    
+    public static func points(_ value: Double) -> Measurement {
+        return Measurement(value, unit: .points)
+    }
+    
+    public static func centimeters(_ value: Double) -> Measurement {
+        return Measurement(value, unit: .centimeters)
+    }
+    
+    public static func millimeters(_ value: Double) -> Measurement {
+        return Measurement(value, unit: .millimeters)
+    }
+    
+    public static func twips(_ value: Int) -> Measurement {
+        return Measurement(Double(value), unit: .twips)
+    }
+}
+
+// MARK: - User-Friendly Wrappers
+
+public struct UserFriendlyPageMargins {
+    public var top: Measurement
+    public var right: Measurement
+    public var bottom: Measurement
+    public var left: Measurement
+    public var header: Measurement
+    public var footer: Measurement
+    public var gutter: Measurement
+    
+    public init(
+        top: Measurement = .inches(1.0),
+        right: Measurement = .inches(1.0),
+        bottom: Measurement = .inches(1.0),
+        left: Measurement = .inches(1.0),
+        header: Measurement = .inches(0.5),
+        footer: Measurement = .inches(0.5),
+        gutter: Measurement = .inches(0.0)
+    ) {
+        self.top = top
+        self.right = right
+        self.bottom = bottom
+        self.left = left
+        self.header = header
+        self.footer = footer
+        self.gutter = gutter
+    }
+    
+    // Convert to internal format
+    public func toPageMargins() -> PageMargins {
+        return PageMargins(
+            top: top.twips,
+            right: right.twips,
+            bottom: bottom.twips,
+            left: left.twips,
+            header: header.twips,
+            footer: footer.twips,
+            gutter: gutter.twips
+        )
+    }
+}
+
+public struct UserFriendlyFontConfig {
+    public var name: String
+    public var size: Measurement
+    public var color: String
+    
+    public init(
+        name: String = "Calibri",
+        size: Measurement = .points(12.0),
+        color: String = "000000"
+    ) {
+        self.name = name
+        self.size = size
+        self.color = color
+    }
+    
+    // Convert to internal format
+    public func toFontConfig() -> FontConfig {
+        return FontConfig(
+            name: name,
+            size: size.twips / 10, // Font size is in half-points, so divide by 10
+            color: color
+        )
+    }
+}
+
+public struct UserFriendlySpacing {
+    public var before: Measurement
+    public var after: Measurement
+    public var line: Measurement?
+    
+    public init(
+        before: Measurement = .points(0.0),
+        after: Measurement = .points(0.0),
+        line: Measurement? = nil
+    ) {
+        self.before = before
+        self.after = after
+        self.line = line
+    }
+    
+    // Convert to internal format
+    public func toSpacing() -> Spacing {
+        return Spacing(
+            before: before.twips,
+            after: after.twips,
+            line: line?.twips
+        )
+    }
+}
+
+public struct UserFriendlyIndentation {
+    public var left: Measurement
+    public var right: Measurement
+    public var firstLine: Measurement?
+    public var hanging: Measurement?
+    
+    public init(
+        left: Measurement = .inches(0.0),
+        right: Measurement = .inches(0.0),
+        firstLine: Measurement? = nil,
+        hanging: Measurement? = nil
+    ) {
+        self.left = left
+        self.right = right
+        self.firstLine = firstLine
+        self.hanging = hanging
+    }
+    
+    // Convert to internal format
+    public func toIndentation() -> Indentation {
+        return Indentation(
+            left: left.twips,
+            right: right.twips,
+            firstLine: firstLine?.twips,
+            hanging: hanging?.twips
+        )
+    }
+}
+
+public struct UserFriendlyBorderSide {
+    public var width: Measurement
+    public var color: String
+    public var style: BorderStyle
+    
+    public init(
+        width: Measurement = .points(0.5),
+        color: String = "000000",
+        style: BorderStyle = .single
+    ) {
+        self.width = width
+        self.color = color
+        self.style = style
+    }
+    
+    // Convert to internal format
+    public func toBorderSide() -> BorderSide {
+        return BorderSide(
+            width: width.twips / 10, // Border width is in eighths of a point
+            color: color,
+            style: style
+        )
+    }
+}
+
+public struct UserFriendlyBorder {
+    public var top: UserFriendlyBorderSide?
+    public var right: UserFriendlyBorderSide?
+    public var bottom: UserFriendlyBorderSide?
+    public var left: UserFriendlyBorderSide?
+    
+    public init(
+        top: UserFriendlyBorderSide? = nil,
+        right: UserFriendlyBorderSide? = nil,
+        bottom: UserFriendlyBorderSide? = nil,
+        left: UserFriendlyBorderSide? = nil
+    ) {
+        self.top = top
+        self.right = right
+        self.bottom = bottom
+        self.left = left
+    }
+    
+    // Convert to internal format
+    public func toBorder() -> Border {
+        return Border(
+            top: top?.toBorderSide(),
+            right: right?.toBorderSide(),
+            bottom: bottom?.toBorderSide(),
+            left: left?.toBorderSide()
+        )
+    }
+}
+
+// MARK: - User-Friendly Styling Configuration
+
+public struct UserFriendlyDocxStylingConfig {
+    public var pageMargins: UserFriendlyPageMargins
+    public var defaultFont: UserFriendlyFontConfig
+    public var lineSpacing: LineSpacing
+    public var headings: HeadingStyles
+    public var paragraphs: ParagraphStyles
+    public var codeBlocks: CodeBlockStyles
+    public var blockquotes: BlockquoteStyles
+    public var tables: TableStyles
+    public var lists: ListStyles
+    
+    public init(
+        pageMargins: UserFriendlyPageMargins = UserFriendlyPageMargins(),
+        defaultFont: UserFriendlyFontConfig = UserFriendlyFontConfig(),
+        lineSpacing: LineSpacing = LineSpacing(),
+        headings: HeadingStyles = HeadingStyles(),
+        paragraphs: ParagraphStyles = ParagraphStyles(),
+        codeBlocks: CodeBlockStyles = CodeBlockStyles(),
+        blockquotes: BlockquoteStyles = BlockquoteStyles(),
+        tables: TableStyles = TableStyles(),
+        lists: ListStyles = ListStyles()
+    ) {
+        self.pageMargins = pageMargins
+        self.defaultFont = defaultFont
+        self.lineSpacing = lineSpacing
+        self.headings = headings
+        self.paragraphs = paragraphs
+        self.codeBlocks = codeBlocks
+        self.blockquotes = blockquotes
+        self.tables = tables
+        self.lists = lists
+    }
+    
+    // Convert to internal format
+    public func toDocxStylingConfig() -> DocxStylingConfig {
+        return DocxStylingConfig(
+            pageMargins: pageMargins.toPageMargins(),
+            defaultFont: defaultFont.toFontConfig(),
+            lineSpacing: lineSpacing,
+            headings: headings,
+            paragraphs: paragraphs,
+            codeBlocks: codeBlocks,
+            blockquotes: blockquotes,
+            tables: tables,
+            lists: lists
+        )
+    }
+}
+
 // MARK: - Styling Configuration
 
 public struct DocxStylingConfig {
