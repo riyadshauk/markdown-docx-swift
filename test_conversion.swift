@@ -17,7 +17,7 @@ This is a **test** document with *italic* text and `inline code`.
 - **Bold text**
 - *Italic text*
 - `Inline code`
-- [Links](https://example.com)
+- [Links](https://example.com) <!-- Currently broken: shows as plain text only -->
 - ~~Strikethrough text~~
 
 ### Code Block

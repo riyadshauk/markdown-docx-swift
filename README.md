@@ -9,7 +9,7 @@ A Swift library for converting Markdown documents to Microsoft Word (.docx) form
 - ✅ **Bold** and *italic* text
 - ✅ `Inline code` and code blocks
 - ✅ **Bullet lists** and numbered lists
-- ✅ [Links](https://example.com)
+- ⚠️ [Links](https://example.com) (currently broken - URLs ignored, only text preserved)
 - ✅ ~~Strikethrough text~~
 - ✅ Blockquotes
 - ✅ Tables
@@ -24,7 +24,7 @@ Add the following dependency to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/your-username/markdown-docx-swift.git", from: "1.0.0")
+    .package(url: "https://github.com/riyadshauk/markdown-docx-swift.git", from: "1.0.0")
 ]
 ```
 
@@ -395,6 +395,23 @@ UserFriendlyBorderSide(width: .points(1.0)).toBorderSide().width // = 2
 
 For detailed information about value behavior, edge cases, and troubleshooting, see [VALUE_BEHAVIOR_DOCUMENTATION.md](VALUE_BEHAVIOR_DOCUMENTATION.md).
 
+## Known Issues
+
+### Link Support
+**⚠️ Links are currently broken** - Markdown links are converted to plain text only. The URL is ignored and only the link text is preserved in the DOCX output.
+
+```swift
+// Input: [Apple](https://www.apple.com)
+// Output: "Apple" (plain text, no hyperlink)
+```
+
+This is a known limitation that needs to be fixed. The library currently:
+- ✅ Preserves the link text
+- ❌ Ignores the URL
+- ❌ Does not create clickable hyperlinks in the DOCX
+
+**Workaround**: For now, you can manually add hyperlinks in the generated DOCX file using your word processor.
+
 ## Supported Markdown Features
 
 | Feature | Support | Notes |
@@ -404,7 +421,7 @@ For detailed information about value behavior, edge cases, and troubleshooting, 
 | Italic (*text*) | ✅ | |
 | Inline code (`code`) | ✅ | |
 | Code blocks (```) | ✅ | Language syntax highlighting not supported |
-| Links ([text](url)) | ✅ | |
+| Links ([text](url)) | ⚠️ | Currently broken - URLs ignored, only link text preserved |
 | Strikethrough (~~text~~) | ✅ | |
 | Bullet lists (- item) | ✅ | |
 | Numbered lists (1. item) | ✅ | |

@@ -113,7 +113,7 @@ func testUserFriendlyStyling() {
     
     - **Bold text** and *italic text*
     - `Inline code` formatting
-    - [Links](https://example.com)
+    - [Links](https://example.com) <!-- Currently broken: shows as plain text only -->
     
     ### Code Block Example
     
