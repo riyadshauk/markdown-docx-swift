@@ -11,7 +11,11 @@ import ZIPFoundation
 
 public class MarkdownToDocxConverter {
     
-    public init() {}
+    private let stylingConfig: DocxStylingConfig
+    
+    public init(stylingConfig: DocxStylingConfig = DocxStylingConfig()) {
+        self.stylingConfig = stylingConfig
+    }
     
     public func convert(markdown: String) throws -> Data {
         let document = Document(parsing: markdown)
@@ -263,6 +267,14 @@ public class MarkdownToDocxConverter {
         // Add word/styles.xml
         let styles = generateStylesXml()
         try addFileToArchive(archive: archive, path: "word/styles.xml", content: styles)
+        
+        // Add word/settings.xml
+        let settings = generateDocumentSettingsXml()
+        try addFileToArchive(archive: archive, path: "word/settings.xml", content: settings)
+        
+        // Add word/_rels/settings.xml.rels
+        let settingsRels = generateDocumentSettingsRelsXml()
+        try addFileToArchive(archive: archive, path: "word/_rels/settings.xml.rels", content: settingsRels)
     }
     
     private func addFileToArchive(archive: Archive, path: String, content: String) throws {
@@ -283,6 +295,7 @@ public class MarkdownToDocxConverter {
             <Default Extension="xml" ContentType="application/xml"/>
             <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
             <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+            <Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>
         </Types>
         """
     }
@@ -319,6 +332,30 @@ public class MarkdownToDocxConverter {
                 \(bodyContent)
             </w:body>
         </w:document>
+        """
+    }
+    
+    private func generateDocumentSettingsXml() -> String {
+        return """
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+            <w:defaultTabStop w:val="720"/>
+            <w:characterSpacingControl w:val="doNotCompress"/>
+            <w:compat/>
+            <w:rsids>
+                <w:rsidRoot w:val="00C847FE"/>
+            </w:rsids>
+            <w:themeFontLang w:val="en-US" w:eastAsia="en-US"/>
+            <w:clrSchemeMapping w:bg1="light1" w:t1="dark1" w:bg2="light2" w:t2="dark2" w:accent1="accent1" w:accent2="accent2" w:accent3="accent3" w:accent4="accent4" w:accent5="accent5" w:accent6="accent6" w:hyperlink="hyperlink" w:followedHyperlink="followedHyperlink"/>
+        </w:settings>
+        """
+    }
+    
+    private func generateDocumentSettingsRelsXml() -> String {
+        return """
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+        </Relationships>
         """
     }
     
@@ -537,13 +574,27 @@ public class MarkdownToDocxConverter {
     }
     
     private func generateStylesXml() -> String {
+        let defaultFont = stylingConfig.defaultFont
+        let headings = stylingConfig.headings
+        let codeBlocks = stylingConfig.codeBlocks
+        let blockquotes = stylingConfig.blockquotes
+        
+        var headingStyles = ""
+        for level in 1...6 {
+            let headingStyle = headings.style(for: level)
+            headingStyles += generateHeadingStyleXml(level: level, style: headingStyle)
+        }
+        
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
             <w:docDefaults>
                 <w:rPrDefault>
                     <w:rPr>
-                        <w:rFonts w:ascii="Calibri" w:eastAsia="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
+                        <w:rFonts w:ascii="\(defaultFont.name)" w:eastAsia="\(defaultFont.name)" w:hAnsi="\(defaultFont.name)" w:cs="\(defaultFont.name)"/>
+                        <w:color w:val="\(defaultFont.color)"/>
+                        <w:sz w:val="\(defaultFont.size)"/>
+                        <w:szCs w:val="\(defaultFont.size)"/>
                         <w:lang w:val="en-US" w:eastAsia="en-US" w:bidi="ar-SA"/>
                     </w:rPr>
                 </w:rPrDefault>
@@ -558,86 +609,16 @@ public class MarkdownToDocxConverter {
                 <w:name w:val="Normal"/>
                 <w:qFormat/>
             </w:style>
-            <w:style w:type="paragraph" w:styleId="Heading1">
-                <w:name w:val="heading 1"/>
-                <w:basedOn w:val="Normal"/>
-                <w:next w:val="Normal"/>
-                <w:link w:val="Heading1Char"/>
-                <w:uiPriority w:val="9"/>
-                <w:qFormat/>
-                <w:rsid w:val="00C847FE"/>
-                <w:pPr>
-                    <w:keepNext/>
-                    <w:keepLines/>
-                    <w:spacing w:before="240" w:after="0"/>
-                    <w:outlineLvl w:val="0"/>
-                </w:pPr>
-                <w:rPr>
-                    <w:b/>
-                    <w:bCs/>
-                    <w:kern w:val="32"/>
-                    <w:sz w:val="32"/>
-                    <w:szCs w:val="32"/>
-                </w:rPr>
-            </w:style>
-            <w:style w:type="paragraph" w:styleId="Heading2">
-                <w:name w:val="heading 2"/>
-                <w:basedOn w:val="Normal"/>
-                <w:next w:val="Normal"/>
-                <w:link w:val="Heading2Char"/>
-                <w:uiPriority w:val="9"/>
-                <w:qFormat/>
-                <w:rsid w:val="00C847FE"/>
-                <w:pPr>
-                    <w:keepNext/>
-                    <w:keepLines/>
-                    <w:spacing w:before="240" w:after="0"/>
-                    <w:outlineLvl w:val="1"/>
-                </w:pPr>
-                <w:rPr>
-                    <w:b/>
-                    <w:bCs/>
-                    <w:kern w:val="32"/>
-                    <w:sz w:val="28"/>
-                    <w:szCs w:val="28"/>
-                </w:rPr>
-            </w:style>
-            <w:style w:type="paragraph" w:styleId="Heading3">
-                <w:name w:val="heading 3"/>
-                <w:basedOn w:val="Normal"/>
-                <w:next w:val="Normal"/>
-                <w:link w:val="Heading3Char"/>
-                <w:uiPriority w:val="9"/>
-                <w:qFormat/>
-                <w:rsid w:val="00C847FE"/>
-                <w:pPr>
-                    <w:keepNext/>
-                    <w:keepLines/>
-                    <w:spacing w:before="240" w:after="0"/>
-                    <w:outlineLvl w:val="2"/>
-                </w:pPr>
-                <w:rPr>
-                    <w:b/>
-                    <w:bCs/>
-                    <w:kern w:val="32"/>
-                    <w:sz w:val="24"/>
-                    <w:szCs w:val="24"/>
-                </w:rPr>
-            </w:style>
+            \(headingStyles)
             <w:style w:type="paragraph" w:styleId="CodeBlock">
                 <w:name w:val="Code Block"/>
                 <w:basedOn w:val="Normal"/>
                 <w:rsid w:val="00C847FE"/>
                 <w:pPr>
-                    <w:spacing w:before="120" w:after="120"/>
-                    <w:ind w:left="720" w:right="720"/>
-                    <w:pBdr>
-                        <w:top w:val="single" w:sz="4" w:space="1" w:color="CCCCCC"/>
-                        <w:left w:val="single" w:sz="4" w:space="1" w:color="CCCCCC"/>
-                        <w:bottom w:val="single" w:sz="4" w:space="1" w:color="CCCCCC"/>
-                        <w:right w:val="single" w:sz="4" w:space="1" w:color="CCCCCC"/>
-                    </w:pBdr>
-                    <w:shd w:val="clear" w:color="auto" w:fill="F5F5F5"/>
+                    \(generateSpacingXml(codeBlocks.spacing))
+                    \(generateIndentationXml(codeBlocks.indentation))
+                    \(generateBorderXml(codeBlocks.border))
+                    <w:shd w:val="clear" w:color="auto" w:fill="\(codeBlocks.background)"/>
                 </w:pPr>
             </w:style>
             <w:style w:type="paragraph" w:styleId="Quote">
@@ -645,11 +626,9 @@ public class MarkdownToDocxConverter {
                 <w:basedOn w:val="Normal"/>
                 <w:rsid w:val="00C847FE"/>
                 <w:pPr>
-                    <w:spacing w:before="120" w:after="120"/>
-                    <w:ind w:left="720" w:right="720"/>
-                    <w:pBdr>
-                        <w:left w:val="single" w:sz="8" w:space="4" w:color="CCCCCC"/>
-                    </w:pBdr>
+                    \(generateSpacingXml(blockquotes.spacing))
+                    \(generateIndentationXml(blockquotes.indentation))
+                    \(generateBorderXml(blockquotes.border))
                 </w:pPr>
                 <w:rPr>
                     <w:i/>
@@ -660,13 +639,98 @@ public class MarkdownToDocxConverter {
                 <w:name w:val="Code"/>
                 <w:rsid w:val="00C847FE"/>
                 <w:rPr>
-                    <w:rFonts w:ascii="Consolas" w:eastAsia="Consolas" w:hAnsi="Consolas" w:cs="Consolas"/>
-                    <w:color w:val="C7254E"/>
+                    <w:rFonts w:ascii="\(codeBlocks.font.name)" w:eastAsia="\(codeBlocks.font.name)" w:hAnsi="\(codeBlocks.font.name)" w:cs="\(codeBlocks.font.name)"/>
+                    <w:color w:val="\(codeBlocks.font.color)"/>
                     <w:shd w:val="clear" w:color="auto" w:fill="F9F2F4"/>
                 </w:rPr>
             </w:style>
         </w:styles>
         """
+    }
+    
+    private func generateHeadingStyleXml(level: Int, style: HeadingStyle) -> String {
+        let spacingXml = generateSpacingXml(style.spacing)
+        let keepNext = style.keepWithNext ? "<w:keepNext/>" : ""
+        let keepLines = style.keepLines ? "<w:keepLines/>" : ""
+        
+        return """
+        <w:style w:type="paragraph" w:styleId="Heading\(level)">
+            <w:name w:val="heading \(level)"/>
+            <w:basedOn w:val="Normal"/>
+            <w:next w:val="Normal"/>
+            <w:link w:val="Heading\(level)Char"/>
+            <w:uiPriority w:val="9"/>
+            <w:qFormat/>
+            <w:rsid w:val="00C847FE"/>
+            <w:pPr>
+                \(keepNext)
+                \(keepLines)
+                \(spacingXml)
+                <w:outlineLvl w:val="\(level - 1)"/>
+            </w:pPr>
+            <w:rPr>
+                <w:b/>
+                <w:bCs/>
+                <w:kern w:val="32"/>
+                <w:sz w:val="\(style.font.size)"/>
+                <w:szCs w:val="\(style.font.size)"/>
+                <w:color w:val="\(style.font.color)"/>
+            </w:rPr>
+        </w:style>
+        """
+    }
+    
+    private func generateSpacingXml(_ spacing: Spacing) -> String {
+        var xml = ""
+        if spacing.before > 0 {
+            xml += "<w:spacing w:before=\"\(spacing.before)\""
+        } else {
+            xml += "<w:spacing"
+        }
+        if spacing.after > 0 {
+            xml += " w:after=\"\(spacing.after)\""
+        }
+        if let line = spacing.line {
+            xml += " w:line=\"\(line)\" w:lineRule=\"exactly\""
+        }
+        xml += "/>"
+        return xml
+    }
+    
+    private func generateIndentationXml(_ indentation: Indentation) -> String {
+        var xml = "<w:ind"
+        if indentation.left > 0 {
+            xml += " w:left=\"\(indentation.left)\""
+        }
+        if indentation.right > 0 {
+            xml += " w:right=\"\(indentation.right)\""
+        }
+        if let firstLine = indentation.firstLine {
+            xml += " w:firstLine=\"\(firstLine)\""
+        }
+        if let hanging = indentation.hanging {
+            xml += " w:hanging=\"\(hanging)\""
+        }
+        xml += "/>"
+        return xml
+    }
+    
+    private func generateBorderXml(_ border: Border) -> String {
+        var xml = "<w:pBdr>"
+        if let top = border.top {
+            xml += "<w:top w:val=\"\(top.style.xmlValue)\" w:sz=\"\(top.width)\" w:space=\"1\" w:color=\"\(top.color)\"/>"
+        }
+        if let right = border.right {
+            xml += "<w:right w:val=\"\(right.style.xmlValue)\" w:sz=\"\(right.width)\" w:space=\"1\" w:color=\"\(right.color)\"/>"
+        }
+        if let bottom = border.bottom {
+            xml += "<w:bottom w:val=\"\(bottom.style.xmlValue)\" w:sz=\"\(bottom.width)\" w:space=\"1\" w:color=\"\(bottom.color)\"/>"
+        }
+        if let left = border.left {
+            xml += "<w:left w:val=\"\(left.style.xmlValue)\" w:sz=\"\(left.width)\" w:space=\"1\" w:color=\"\(left.color)\"/>"
+        }
+        xml += "</w:pBdr>"
+        return xml
     }
     
     private func escapeXml(_ text: String) -> String {

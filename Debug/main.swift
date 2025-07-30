@@ -4,6 +4,174 @@ import Foundation
 import MarkdownToDocx
 import ZIPFoundation
 
+print("🚀 Markdown to DOCX Converter - Styling Configuration Test")
+print(String(repeating: "=", count: 60))
+
+// Test markdown content
+let testMarkdown = """
+# Styling Configuration Test
+
+This document demonstrates different styling configurations.
+
+## Features Tested
+
+- **Bold text** and *italic text*
+- `Inline code` formatting
+- [Links](https://example.com)
+- ~~Strikethrough text~~
+
+### Code Block Example
+
+```swift
+func hello() {
+    print("Hello, World!")
+}
+```
+
+> This is a blockquote that demonstrates custom styling.
+
+| Feature | Support | Notes |
+|---------|---------|-------|
+| Headers | ✅ | All levels supported |
+| Lists | ✅ | Bullet and numbered |
+| Tables | ✅ | Basic table support |
+
+---
+
+End of document.
+"""
+
+// Test 1: Default styling
+print("\n1️⃣ Testing default styling...")
+let defaultConverter = MarkdownToDocxConverter()
+do {
+    let defaultData = try defaultConverter.convert(markdown: testMarkdown)
+    let defaultURL = FileManager.default.temporaryDirectory.appendingPathComponent("default_styling.docx")
+    try defaultData.write(to: defaultURL)
+    print("✅ Default styling saved to: \(defaultURL.path)")
+    print("📊 File size: \(defaultData.count) bytes")
+} catch {
+    print("❌ Error with default styling: \(error)")
+}
+
+// Test 2: Professional styling
+print("\n2️⃣ Testing professional styling...")
+let professionalConfig = DocxStylingConfig(
+    defaultFont: FontConfig(name: "Times New Roman", size: 24, color: "000000"),
+    headings: HeadingStyles(
+        h1: HeadingStyle(
+            level: 1,
+            font: FontConfig(name: "Arial", size: 36, color: "2E5984"),
+            spacing: Spacing(before: 360, after: 120)
+        ),
+        h2: HeadingStyle(
+            level: 2,
+            font: FontConfig(name: "Arial", size: 32, color: "2E5984"),
+            spacing: Spacing(before: 300, after: 120)
+        ),
+        h3: HeadingStyle(
+            level: 3,
+            font: FontConfig(name: "Arial", size: 28, color: "2E5984"),
+            spacing: Spacing(before: 240, after: 120)
+        )
+    ),
+    codeBlocks: CodeBlockStyles(
+        font: FontConfig(name: "Courier New", size: 20, color: "C7254E"),
+        background: "F8F9FA",
+        border: Border(
+            top: BorderSide(width: 4, color: "DEE2E6", style: .single),
+            right: BorderSide(width: 4, color: "DEE2E6", style: .single),
+            bottom: BorderSide(width: 4, color: "DEE2E6", style: .single),
+            left: BorderSide(width: 4, color: "DEE2E6", style: .single)
+        ),
+        indentation: Indentation(left: 720, right: 720),
+        spacing: Spacing(before: 120, after: 120)
+    ),
+    blockquotes: BlockquoteStyles(
+        font: FontConfig(name: "Times New Roman", size: 24, color: "6C757D"),
+        border: Border(
+            left: BorderSide(width: 8, color: "6C757D", style: .single)
+        ),
+        indentation: Indentation(left: 720, right: 720),
+        spacing: Spacing(before: 120, after: 120)
+    )
+)
+
+let professionalConverter = MarkdownToDocxConverter(stylingConfig: professionalConfig)
+
+do {
+    let professionalData = try professionalConverter.convert(markdown: testMarkdown)
+    let professionalURL = FileManager.default.temporaryDirectory.appendingPathComponent("professional_styling.docx")
+    try professionalData.write(to: professionalURL)
+    print("✅ Professional styling saved to: \(professionalURL.path)")
+    print("📊 File size: \(professionalData.count) bytes")
+} catch {
+    print("❌ Error with professional styling: \(error)")
+}
+
+// Test 3: Creative styling
+print("\n3️⃣ Testing creative styling...")
+let creativeConfig = DocxStylingConfig(
+    defaultFont: FontConfig(name: "Arial", size: 24, color: "333333"),
+    headings: HeadingStyles(
+        h1: HeadingStyle(
+            level: 1,
+            font: FontConfig(name: "Arial", size: 40, color: "E74C3C"),
+            spacing: Spacing(before: 480, after: 240)
+        ),
+        h2: HeadingStyle(
+            level: 2,
+            font: FontConfig(name: "Arial", size: 32, color: "3498DB"),
+            spacing: Spacing(before: 360, after: 180)
+        ),
+        h3: HeadingStyle(
+            level: 3,
+            font: FontConfig(name: "Arial", size: 28, color: "27AE60"),
+            spacing: Spacing(before: 240, after: 120)
+        )
+    ),
+    codeBlocks: CodeBlockStyles(
+        font: FontConfig(name: "Courier New", size: 20, color: "8E44AD"),
+        background: "FDF2F8",
+        border: Border(
+            top: BorderSide(width: 6, color: "E91E63", style: .dashed),
+            right: BorderSide(width: 6, color: "E91E63", style: .dashed),
+            bottom: BorderSide(width: 6, color: "E91E63", style: .dashed),
+            left: BorderSide(width: 6, color: "E91E63", style: .dashed)
+        ),
+        indentation: Indentation(left: 720, right: 720),
+        spacing: Spacing(before: 120, after: 120)
+    ),
+    blockquotes: BlockquoteStyles(
+        font: FontConfig(name: "Georgia", size: 24, color: "7F8C8D"),
+        border: Border(
+            left: BorderSide(width: 12, color: "F39C12", style: .double)
+        ),
+        indentation: Indentation(left: 720, right: 720),
+        spacing: Spacing(before: 120, after: 120)
+    )
+)
+
+let creativeConverter = MarkdownToDocxConverter(stylingConfig: creativeConfig)
+
+do {
+    let creativeData = try creativeConverter.convert(markdown: testMarkdown)
+    let creativeURL = FileManager.default.temporaryDirectory.appendingPathComponent("creative_styling.docx")
+    try creativeData.write(to: creativeURL)
+    print("✅ Creative styling saved to: \(creativeURL.path)")
+    print("📊 File size: \(creativeData.count) bytes")
+} catch {
+    print("❌ Error with creative styling: \(error)")
+}
+
+print("\n🎉 All styling tests completed!")
+print("\n📁 Generated files are in: \(FileManager.default.temporaryDirectory.path)")
+print("\n💡 Open these files in Microsoft Word, Pages, or any DOCX-compatible app to see the styling differences.")
+print("\n📋 Files generated:")
+print("   • default_styling.docx - Default configuration")
+print("   • professional_styling.docx - Professional business styling")
+print("   • creative_styling.docx - Colorful creative styling")
+
 // Test the DOCX generation
 let markdown = """
 # Test Document

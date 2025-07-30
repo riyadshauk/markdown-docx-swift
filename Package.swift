@@ -13,7 +13,8 @@ let package = Package(
     platforms: [.iOS(.v15)],
     products: [
         .library(name: "MarkdownToDocx", targets: ["MarkdownToDocx"]),
-        .executable(name: "debug-docx", targets: ["DebugDocx"])
+        .executable(name: "debug-docx", targets: ["DebugDocx"]),
+        .executable(name: "debug-resume", targets: ["DebugResume"])
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-markdown.git", branch: "main"),
@@ -35,6 +36,14 @@ let package = Package(
                 .product(name: "ZIPFoundation", package: "ZIPFoundation")
             ],
             path: "Debug"
+        ),
+        .executableTarget(
+            name: "DebugResume",
+            dependencies: [
+                "MarkdownToDocx",
+                .product(name: "ZIPFoundation", package: "ZIPFoundation")
+            ],
+            path: "DebugResume"
         ),
         .testTarget(
             name: "MarkdownToDocxTests",
