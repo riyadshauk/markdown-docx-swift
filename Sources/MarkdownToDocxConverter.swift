@@ -330,11 +330,18 @@ public class MarkdownToDocxConverter {
             bodyContent += generateElementXml(element, links: links)
         }
         
+        let pageMargins = stylingConfig.pageMargins
+        let pageSize = stylingConfig.pageSize
+        
         return """
         <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
             <w:body>
                 \(bodyContent)
+                <w:sectPr>
+                    <w:pgSz w:w="\(pageSize.width.twips)" w:h="\(pageSize.height.twips)"/>
+                    <w:pgMar w:top="\(pageMargins.top)" w:right="\(pageMargins.right)" w:bottom="\(pageMargins.bottom)" w:left="\(pageMargins.left)" w:header="\(pageMargins.header)" w:footer="\(pageMargins.footer)" w:gutter="\(pageMargins.gutter)"/>
+                </w:sectPr>
             </w:body>
         </w:document>
         """
@@ -589,6 +596,8 @@ public class MarkdownToDocxConverter {
     private func generateStylesXml() -> String {
         let defaultFont = stylingConfig.defaultFont
         let headings = stylingConfig.headings
+        let paragraphs = stylingConfig.paragraphs
+        let lineSpacing = stylingConfig.lineSpacing
         let codeBlocks = stylingConfig.codeBlocks
         let blockquotes = stylingConfig.blockquotes
         
@@ -621,6 +630,10 @@ public class MarkdownToDocxConverter {
             <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
                 <w:name w:val="Normal"/>
                 <w:qFormat/>
+                <w:pPr>
+                    \(generateSpacingXml(paragraphs.spacing))
+                    \(generateLineSpacingXml(lineSpacing))
+                </w:pPr>
             </w:style>
             \(headingStyles)
             <w:style w:type="paragraph" w:styleId="CodeBlock">
@@ -708,6 +721,23 @@ public class MarkdownToDocxConverter {
         }
         xml += "/>"
         return xml
+    }
+    
+    private func generateLineSpacingXml(_ lineSpacing: LineSpacing) -> String {
+        guard let value = lineSpacing.value else {
+            return ""
+        }
+        
+        switch lineSpacing.type {
+        case .auto:
+            return ""
+        case .atLeast:
+            return "<w:spacing w:line=\"\(value)\" w:lineRule=\"atLeast\"/>"
+        case .exactly:
+            return "<w:spacing w:line=\"\(value)\" w:lineRule=\"exactly\"/>"
+        case .multiple:
+            return "<w:spacing w:line=\"\(value)\" w:lineRule=\"auto\"/>"
+        }
     }
     
     private func generateIndentationXml(_ indentation: Indentation) -> String {
